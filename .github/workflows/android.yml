@@ -33,11 +33,17 @@ jobs:
           mkdir -p extracted
           unzip -o HQQUIZ_Native_Android_Project.zip -d extracted
 
+      - 
+      - name: Fix Java and Kotlin versions
+        run: |
+          find extracted -path '*/app/build.gradle.kts' -exec sed -i 's/JavaVersion.VERSION_1_8/JavaVersion.VERSION_17/g; s/jvmTarget = "1.8"/jvmTarget = "17"/g' {} \;
+
       - name: Build APK
         run: |
           PROJECT_DIR=$(dirname "$(find extracted -name settings.gradle.kts | head -n 1)")
           cd "$PROJECT_DIR"
           gradle assembleDebug
+
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
