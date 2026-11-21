@@ -30,9 +30,20 @@ jobs:
           mkdir -p extracted
           unzip -o HQQUIZ_Native_Android_Project.zip -d extracted
 
+      - 
+
       - name: Fix JVM targets
         run: |
-          find extracted -path '*/app/build.gradle.kts' -exec sed -i 's/JavaVersion.VERSION_1_8/JavaVersion.VERSION_17/g; s/jvmTarget = "1.8"/jvmTarget = "17"/g' {} \;
+          find extracted -type f \( -name 'build.gradle' -o -name 'build.gradle.kts' \) -print0 | while IFS= read -r -d '' file; do
+            sed -i \
+              -e 's/VERSION_1_8/VERSION_17/g' \
+              -e 's/jvmTarget = "1.8"/jvmTarget = "17"/g' \
+              -e "s/jvmTarget = '1.8'/jvmTarget = '17'/g" \
+              -e 's/JVM_1_8/JVM_17/g' \
+              "$file"
+          done
+          echo "Gradle files after correction:"
+          grep -RnE 'VERSION_1_8|jvmTarget.*1\.8|JVM_1_8' extracted || true
 
       - name: Build APK
         run: |
